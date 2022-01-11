@@ -113,7 +113,7 @@ variables [comm_ring R]
 lemma roots_of_unity.coe_pow (ζ : roots_of_unity k R) (m : ℕ) : ↑(ζ ^ m) = (ζ ^ m : R) :=
 begin
   change ↑(↑(ζ ^ m) : Rˣ) = ↑(ζ : Rˣ) ^ m,
-  rw [subgroup.coe_pow, units.coe_pow],
+  rw [submonoid_class.coe_pow, units.coe_pow],
 end
 
 variables [comm_ring S]
@@ -128,7 +128,8 @@ let h : ∀ ξ : roots_of_unity n R, (σ ξ) ^ (n : ℕ) = 1 := λ ξ, by
 { to_fun := λ ξ, ⟨@unit_of_invertible _ _ _ (invertible_of_pow_eq_one _ _ (h ξ) n.2),
     by { ext, rw units.coe_pow, exact h ξ }⟩,
   map_one' := by { ext, exact map_one σ },
-  map_mul' := λ ξ₁ ξ₂, by { ext, rw [subgroup.coe_mul, units.coe_mul], exact map_mul σ _ _ } }
+  map_mul' := λ ξ₁ ξ₂, by { ext, rw [submonoid_class.coe_mul, units.coe_mul],
+                            exact map_mul σ _ _ } }
 
 @[simp] lemma restrict_roots_of_unity_coe_apply [ring_hom_class F R S] (σ : F)
   (ζ : roots_of_unity k R) : ↑(restrict_roots_of_unity σ k ζ) = σ ↑ζ :=
@@ -214,7 +215,7 @@ variables {k R}
 lemma map_root_of_unity_eq_pow_self [ring_hom_class F R R] (σ : F) (ζ : roots_of_unity k R) :
   ∃ m : ℕ, σ ζ = ζ ^ m :=
 begin
-  obtain ⟨m, hm⟩ := (restrict_roots_of_unity σ k).map_cyclic,
+  obtain ⟨m, hm⟩ := monoid_hom.map_cyclic (restrict_roots_of_unity σ k),
   rw [←restrict_roots_of_unity_coe_apply, hm, zpow_eq_mod_order_of, ←int.to_nat_of_nonneg
       (m.mod_nonneg (int.coe_nat_ne_zero.mpr (pos_iff_ne_zero.mp (order_of_pos ζ)))),
       zpow_coe_nat, roots_of_unity.coe_pow],
@@ -451,7 +452,7 @@ end
 
 @[simp] lemma coe_subgroup_iff (H : subgroup G) {ζ : H} :
   is_primitive_root (ζ : G) k ↔ is_primitive_root ζ k :=
-by simp only [iff_def, ← subgroup.coe_pow, ← H.coe_one, ← subtype.ext_iff]
+by simp only [iff_def, ← submonoid_class.coe_pow, ← submonoid_class.coe_one H, ← subtype.ext_iff]
 
 end comm_group
 
