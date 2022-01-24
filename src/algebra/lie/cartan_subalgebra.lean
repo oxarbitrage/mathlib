@@ -48,9 +48,21 @@ forall_congr (λ y, forall_congr (λ hy, by rw [← lie_skew, H.neg_mem_iff]))
 lemma le_normalizer : H ≤ H.normalizer :=
 λ x hx, show ∀ (y : L), y ∈ H → ⁅x,y⁆ ∈ H, from λ y, H.lie_mem hx
 
+variables {H}
+
 /-- A Lie subalgebra is an ideal of its normalizer. -/
-lemma ideal_in_normalizer : ∀ (x y : L), x ∈ H.normalizer → y ∈ H → ⁅x,y⁆ ∈ H :=
+lemma ideal_in_normalizer : ∀ {x y : L}, x ∈ H.normalizer → y ∈ H → ⁅x,y⁆ ∈ H :=
 λ x y h, h y
+
+lemma exists_nested_lie_ideal_of_le_normalizer
+  {K : lie_subalgebra R L} (h₁ : H ≤ K) (h₂ : K ≤ H.normalizer) :
+  ∃ (I : lie_ideal R K), ↑I = of_le h₁ :=
+begin
+  rw exists_nested_lie_ideal_coe_eq_iff,
+  exact λ x y hx hy, ideal_in_normalizer (h₂ hx) hy,
+end
+
+variables (H)
 
 /-- The normalizer of a Lie subalgebra `H` is the maximal Lie subalgebra in which `H` is a Lie
 ideal. -/

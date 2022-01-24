@@ -180,3 +180,60 @@ begin
 end
 
 end algebra
+
+namespace submodule
+
+variables {M₁ M₂ M₃ : Type*} [ring R]
+variables [add_comm_group M₁] [module R M₁]
+variables [add_comm_group M₂] [module R M₂]
+variables [add_comm_group M₃] [module R M₃]
+variables (p₁ : submodule R M₁) (p₂ : submodule R M₂) (p₃ : submodule R M₃)
+variables (f : M₁ →ₗ[R] M₂) (g : M₂ →ₗ[R] M₃) (hf : p₁ ≤ p₂.comap f) (hg : p₂ ≤ p₃.comap g)
+
+@[simp] lemma mapq_zero (h : p₁ ≤ p₂.comap (0 : M₁ →ₗ[R] M₂) := by simp) :
+  p₁.mapq p₂ (0 : M₁ →ₗ[R] M₂) h = 0 :=
+by { ext, simp, }
+
+lemma mapq_comp (h := (hf.trans (comap_mono hg))) :
+  p₁.mapq p₃ (g ∘ₗ f) h = (p₂.mapq p₃ g hg) ∘ₗ (p₁.mapq p₂ f hf) :=
+by { ext, simp, }
+
+lemma le_comap_pow_of_le_comap (p : submodule R M₁) {f : M₁ →ₗ[R] M₁} (h : p ≤ p.comap f) (k : ℕ) :
+  p ≤ p.comap (f^k) :=
+begin
+  induction k with k ih,
+  { simp [linear_map.one_eq_id, submodule.comap_id], }, -- TODO `submodule.comap_id` should be `simp`
+  { simp [linear_map.iterate_succ, comap_comp, h.trans (comap_mono ih)], },
+end
+
+end submodule
+
+namespace module.End
+
+variables {M : Type v} [ring R] [add_comm_group M] [module R M] {p : submodule R M}
+
+-- TODO `submodule.comap_id` should be `simp`
+@[simp] lemma mapq_id (h : p ≤ p.comap linear_map.id := by simp [submodule.comap_id]) :
+  p.mapq p linear_map.id h = linear_map.id :=
+by { ext, simp, }
+
+lemma mapq_pow {f : M →ₗ[R] M} (h : p ≤ p.comap f) (k : ℕ)
+  (h' : p ≤ p.comap (f^k) := p.le_comap_pow_of_le_comap h k) :
+  p.mapq p (f^k) h' = (p.mapq p f h)^k :=
+begin
+  induction k with k ih,
+  { simp [linear_map.one_eq_id], },
+  { simp only [linear_map.iterate_succ, ← ih],
+    apply p.mapq_comp, },
+end
+
+lemma is_nilpotent_mapq {f : M →ₗ[R] M} (h₁ : is_nilpotent f) {p : submodule R M}
+  (h₂ : p ≤ p.comap f) : is_nilpotent (p.mapq p f h₂) :=
+begin
+  obtain ⟨k, hk⟩ := h₁,
+  use k,
+  rw [← mapq_pow],
+  simp [hk],
+end
+
+end module.End

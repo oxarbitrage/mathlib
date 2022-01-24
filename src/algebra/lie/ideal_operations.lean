@@ -72,6 +72,19 @@ begin
   { rw lie_ideal_oper_eq_span, apply submodule_span_le_lie_span, },
 end
 
+lemma lie_ideal_oper_eq_linear_span' :
+  (↑⁅I, N⁆ : submodule R M) = submodule.span R { m | ∃ (x ∈ I) (n ∈ N), ⁅(x : L), (n : M)⁆ = m } :=
+begin
+  rw lie_ideal_oper_eq_linear_span,
+  congr,
+  ext m,
+  split,
+  { rintros ⟨⟨x, hx⟩, ⟨n, hn⟩, rfl⟩,
+    exact ⟨x, hx, n, hn, rfl⟩, },
+  { rintros ⟨x, hx, n, hn, rfl⟩,
+    exact ⟨⟨x, hx⟩, ⟨n, hn⟩, rfl⟩, },
+end
+
 lemma lie_coe_mem_lie (x : I) (m : N) : ⁅(x : L), (m : M)⁆ ∈ ⁅I, N⁆ :=
 by { rw lie_ideal_oper_eq_span, apply subset_lie_span, use [x, m], }
 
