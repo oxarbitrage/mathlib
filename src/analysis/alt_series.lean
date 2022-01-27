@@ -58,95 +58,66 @@ def alternating_partial_sum' (k : ℕ) := ∑ n in range k, (-1)^n * -(a n)
 lemma alternating_partial_sum_nonneg
   (ha_anti : antitone a)
   (ha_nonneg : ∀ n, 0 ≤ a n)
-  (k : ℕ)
-  : 0 ≤ alternating_partial_sum a k :=
+  (k : ℕ) :
+  0 ≤ alternating_partial_sum a k :=
 begin
   unfold alternating_partial_sum,
   induction k using nat.case_strong_induction_on with k hk,
-    { simp only [sum_empty, ge_iff_le, range_zero] },
-
-  rw sum_range_succ,
-  obtain even | odd := even_or_odd k,
-  { rw neg_one_pow_of_even even,
-    simp only [one_mul, ge_iff_le],
-
-    refine add_nonneg _ _,
-    exact hk k (le_refl k),
-    exact ha_nonneg k},
-
-  cases k with k,
-  { simp, exact ha_nonneg 0 },
-
-  rw sum_range_succ,
-  rw [neg_one_pow_of_even _, neg_one_pow_of_odd odd], swap,
-  { rwa [odd_iff_not_even, even_succ, not_not] at odd },
-  rw [one_mul, neg_one_mul, add_assoc],
-
-  refine add_nonneg _ _,
-  { exact hk k (le_of_lt (lt_succ_self k)) },
-  simp only [zero_add, le_add_neg_iff_add_le],
-  exact ha_anti (le_of_lt (lt_add_one k)),
+  { simp only [sum_empty, range_zero] },
+  { obtain heven | hodd := even_or_odd k,
+    { simp only [sum_range_succ, neg_one_pow_of_even heven, one_mul, ge_iff_le],
+      exact add_nonneg (hk k rfl.le) (ha_nonneg k), },
+    { cases k with k,
+      { exfalso, rw odd_iff_not_even at hodd, exact hodd even_zero, },
+      { have : even k := by simpa with parity_simps using hodd,
+        simp only [sum_range_succ, neg_one_pow_of_even this, neg_one_pow_of_odd hodd],
+        rw [one_mul, neg_one_mul, add_assoc],
+        apply add_nonneg (hk k (lt_succ_self k).le),
+        rw [le_add_neg_iff_add_le, zero_add],
+        exact ha_anti (lt_add_one k).le, } } },
 end
 
 lemma anti_suffix_is_anti {m : ℕ}
   (ha_anti : antitone a) :
   antitone (λ (n : ℕ), a (m + n)) :=
-begin
-  intros x y hx,
-  apply ha_anti,
-  linarith,
-end
+λ x y hx, ha_anti (add_le_add_left hx m)
 
 lemma alternating_partial_sum_diff_nonneg
   {m n : ℕ}
   (ha_anti : antitone a)
   (ha_nonneg : ∀ n, 0 ≤ a n)
   (hmn : m ≤ n)
-  (hm : even m)
-  : 0 ≤ alternating_partial_sum a n - alternating_partial_sum a m :=
+  (hm : even m) :
+  0 ≤ alternating_partial_sum a n - alternating_partial_sum a m :=
 begin
   unfold alternating_partial_sum,
-  rw [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range],
-  simp only [neg_one_pow_of_even_add hm],
-  apply alternating_partial_sum_nonneg,
-  { exact anti_suffix_is_anti _ ha_anti },
-  { intro x, exact ha_nonneg (m + x) },
+  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
+  apply alternating_partial_sum_nonneg _ (anti_suffix_is_anti _ ha_anti),
+  exact λ x, ha_nonneg (m + x),
 end
 
 lemma alternating_partial_sum_le_first
   (ha_anti : antitone a)
   (ha_nonneg : ∀ n, 0 ≤ a n)
-  (k: ℕ)
-  : alternating_partial_sum a k ≤ a 0 :=
+  (k : ℕ) :
+  alternating_partial_sum a k ≤ a 0 :=
 begin
   unfold alternating_partial_sum,
-
   induction k using nat.case_strong_induction_on with k hk,
-  { simp only [sum_empty, range_zero], exact ha_nonneg 0 },
-
-  rw sum_range_succ,
-  obtain even | odd := even_or_odd k, swap,
-  { rw [neg_one_pow_of_odd odd, neg_one_mul],
-    specialize hk k rfl.ge,
-    rw add_neg_le_iff_le_add',
-
-    apply le_trans hk (_: a 0 ≤ a k + a 0),
-    rw [le_add_iff_nonneg_left],
-    exact ha_nonneg k },
-
-  rw [neg_one_pow_of_even even, one_mul],
-
-  cases k with k,
-  { simp only [sum_empty, range_zero, zero_add] },
-
-  rw sum_range_succ,
-  rw neg_one_pow_of_odd, swap,
-  { rwa [even_succ, even_iff_not_odd, not_not] at even },
-  rw [neg_one_mul, add_assoc, add_comm],
-  specialize hk k (le_succ k),
-  apply add_le_of_nonpos_of_le _ hk,
-  simp only [add_zero, neg_add_le_iff_le_add],
-  exact ha_anti (le_of_lt (lt_add_one k)),
+  { simp only [sum_empty, range_zero, ha_nonneg 0] },
+  { rw sum_range_succ,
+    obtain heven | hodd := even_or_odd k,
+    { rw [neg_one_pow_of_even heven, one_mul],
+      cases k with k,
+      { simp only [sum_empty, range_zero, zero_add] },
+      { have : odd k := by simpa with parity_simps using heven,
+        rw [sum_range_succ, neg_one_pow_of_odd this, neg_one_mul, add_assoc, add_comm],
+        apply add_le_of_nonpos_of_le _ (hk k (le_succ k)),
+        simp only [add_zero, neg_add_le_iff_le_add],
+        exact ha_anti (lt_add_one k).le, } },
+    { rw [neg_one_pow_of_odd hodd, neg_one_mul, add_neg_le_iff_le_add'],
+      apply le_trans (hk k rfl.ge),
+      exact le_add_of_nonneg_left (ha_nonneg k), } },
 end
 
 lemma alternating_partial_sum_diff_le_first
@@ -154,17 +125,13 @@ lemma alternating_partial_sum_diff_le_first
   (ha_anti : antitone a)
   (ha_nonneg : ∀ n, 0 ≤ a n)
   (hmn : m ≤ n)
-  (hm : even m)
-  : alternating_partial_sum a n - alternating_partial_sum a m ≤ a m :=
+  (hm : even m) :
+  alternating_partial_sum a n - alternating_partial_sum a m ≤ a m :=
 begin
   unfold alternating_partial_sum,
-  rw [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range],
-  simp only [neg_one_pow_of_even_add hm],
-
+  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
   apply alternating_partial_sum_le_first _ (anti_suffix_is_anti a ha_anti),
-  dsimp,
-  intro N,
-  exact ha_nonneg (m + N),
+  exact λ N, ha_nonneg (m + N),
 end
 
 -- Used to prove `cauchy_seq` for both `a n` and `-(a n)`
@@ -184,60 +151,42 @@ begin
   -- Convert `tendsto` to `ε`-based definition of limit
   simp_rw [metric.tendsto_at_top, real.dist_0_eq_abs, abs_of_nonneg (ha_nonneg _)]
     at ha_tendsto_zero,
-  specialize ha_tendsto_zero ε hε,
-  cases ha_tendsto_zero with m ha_tendsto_zero,
+  obtain ⟨m, ha_tendsto_zero⟩ := ha_tendsto_zero ε hε,
+
+  have : ∀ (m : ℕ) (hatz : ∀ (n : ℕ), n ≥ m → a n < ε) (hme : even m),
+    ∀ (n : ℕ), n ≥ m → |alternating_partial_sum a n - alternating_partial_sum a m| < ε,
+  { intros m hatz hme n hmn,
+    rw abs_of_nonneg (alternating_partial_sum_diff_nonneg a ha_anti ha_nonneg hmn hme),
+    refine lt_of_le_of_lt _ (hatz m rfl.ge),
+    exact alternating_partial_sum_diff_le_first a ha_anti ha_nonneg hmn hme },
 
   obtain hme | hmo := even_or_odd m,
-  { use m,
-    intros n hmn,
-
-    have diff_nonneg := alternating_partial_sum_diff_nonneg a ha_anti ha_nonneg hmn hme,
-    have diff_le_first := alternating_partial_sum_diff_le_first a ha_anti ha_nonneg hmn hme,
-
-    rw [abs_of_nonneg diff_nonneg],
-    apply lt_of_le_of_lt diff_le_first _,
-    exact ha_tendsto_zero m rfl.ge },
-  { use (m+1),
-    have hm1e : even (m+1) := even_succ.mpr (odd_iff_not_even.mp hmo),
-    intros n hmn,
-
-    have diff_nonneg := alternating_partial_sum_diff_nonneg a ha_anti ha_nonneg hmn hm1e,
-    have diff_le_first := alternating_partial_sum_diff_le_first a ha_anti ha_nonneg hmn hm1e,
-
-    rw [abs_of_nonneg diff_nonneg],
-    apply lt_of_le_of_lt diff_le_first _,
-    apply ha_tendsto_zero,
-    exact le_succ m },
+  { exact ⟨m, this m ha_tendsto_zero hme⟩, },
+  { use m+1,
+    apply this,
+    { intros n hn,
+      exact ha_tendsto_zero _ (le_of_succ_le hn), },
+    { simpa with parity_simps using hmo, } },
 end
 
 theorem alternating_partial_sum_is_cauchy_seq
   (ha_tendsto_zero : tendsto a at_top (𝓝 0))
   (ha_anti : antitone a)
-  (ha_nonneg : ∀ n, 0 ≤ a n)
-  : cauchy_seq (alternating_partial_sum a) :=
+  (ha_nonneg : ∀ n, 0 ≤ a n) :
+  cauchy_seq (alternating_partial_sum a) :=
 begin
-  apply metric.cauchy_seq_iff'.mpr, swap,
-  { exact has_bot_nonempty ℕ },
-
-  simp only [real.dist_eq],
+  simp only [metric.cauchy_seq_iff', real.dist_eq],
   exact alternating_partial_sum_is_cau_seq a ha_tendsto_zero ha_anti ha_nonneg,
 end
 
 theorem alternating_partial_sum_is_cauchy_seq'
   (ha_tendsto_zero : tendsto a at_top (𝓝 0))
   (ha_anti : antitone a)
-  (ha_nonneg : ∀ n, 0 ≤ a n)
-  : cauchy_seq (alternating_partial_sum' a) :=
+  (ha_nonneg : ∀ n, 0 ≤ a n) :
+  cauchy_seq (alternating_partial_sum' a) :=
 begin
-  apply metric.cauchy_seq_iff'.mpr, swap,
-  { exact has_bot_nonempty ℕ },
-
-  unfold alternating_partial_sum',
-  simp only [real.dist_eq, neg_sub_neg, sum_neg_distrib, mul_neg_eq_neg_mul_symm],
-
-  -- For some reason, `simp_rw [abs_sub_comm]` only works on a hypothesis, not the goal
-  have hcs := alternating_partial_sum_is_cau_seq,
-  unfold alternating_partial_sum at hcs,
-  simp_rw [abs_sub_comm] at hcs,
-  exact hcs a ha_tendsto_zero ha_anti ha_nonneg,
+  simp only [metric.cauchy_seq_iff', alternating_partial_sum', real.dist_eq,
+    neg_sub_neg, sum_neg_distrib, mul_neg_eq_neg_mul_symm],
+  have hcs := alternating_partial_sum_is_cau_seq a ha_tendsto_zero ha_anti ha_nonneg,
+  simpa only [abs_sub_comm] using hcs,
 end
