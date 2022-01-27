@@ -26,7 +26,7 @@ convergent.
 ## Main definitions
 
 * `alternating_partial_sum` : An alternating series whose first term is positive.
-* `alternating_partial_sum'`: An alternating series whose first term is positive.
+* `alternating_partial_sum'`: An alternating series whose first term is negative.
 
 ## Main results
 
