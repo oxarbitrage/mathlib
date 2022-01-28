@@ -138,13 +138,8 @@ end
 @[nolint ge_or_gt] -- see Note [nolint_ge]
 lemma alternating_partial_sum_is_cau_seq
   (ha_tendsto_zero : tendsto a at_top (𝓝 0))
-  (ha_anti : antitone a)
-  (ha_nonneg : ∀ (n : ℕ), 0 ≤ a n) :
-  ∀ (ε : ℝ),
-    ε > 0 →
-    (∃ (N : ℕ),
-       ∀ (n : ℕ),
-         n ≥ N → |alternating_partial_sum a n - alternating_partial_sum a N| < ε) :=
+  (ha_anti : antitone a) (ha_nonneg : ∀ (n : ℕ), 0 ≤ a n) (ε : ℝ) (hε : ε > 0) :
+  ∃ N, ∀ n ≥ N, |alternating_partial_sum a n - alternating_partial_sum a N| < ε :=
 begin
   intros ε hε,
 
