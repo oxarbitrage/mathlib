@@ -142,8 +142,6 @@ lemma alternating_partial_sum_is_cau_seq
   (ha_anti : antitone a) (ha_nonneg : ∀ (n : ℕ), 0 ≤ a n) (ε : ℝ) (hε : ε > 0) :
   ∃ N, ∀ n ≥ N, |alternating_partial_sum a n - alternating_partial_sum a N| < ε :=
 begin
-  intros ε hε,
-
   -- Convert `tendsto` to `ε`-based definition of limit
   simp_rw [metric.tendsto_at_top, real.dist_0_eq_abs, abs_of_nonneg (ha_nonneg _)]
     at ha_tendsto_zero,
