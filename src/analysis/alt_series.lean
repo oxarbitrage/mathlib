@@ -77,7 +77,7 @@ begin
         exact ha_anti (lt_add_one k).le, } } },
 end
 
-lemma anti_suffix_is_anti {m : ℕ}
+lemma antitone.nat_suffix {m : ℕ}
   (ha_anti : antitone a) :
   antitone (λ (n : ℕ), a (m + n)) :=
 λ x y hx, ha_anti (add_le_add_left hx m)
@@ -92,7 +92,7 @@ lemma alternating_partial_sum_diff_nonneg
 begin
   unfold alternating_partial_sum,
   simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
-  apply alternating_partial_sum_nonneg _ (anti_suffix_is_anti _ ha_anti),
+  apply alternating_partial_sum_nonneg _ (antitone.nat_suffix _ ha_anti),
   exact λ x, ha_nonneg (m + x),
 end
 
@@ -130,7 +130,7 @@ lemma alternating_partial_sum_diff_le_first
 begin
   unfold alternating_partial_sum,
   simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
-  apply alternating_partial_sum_le_first _ (anti_suffix_is_anti a ha_anti),
+  apply alternating_partial_sum_le_first _ (antitone.nat_suffix a ha_anti),
   exact λ N, ha_nonneg (m + N),
 end
 
