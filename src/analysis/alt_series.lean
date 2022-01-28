@@ -91,7 +91,7 @@ lemma alternating_partial_sum_diff_nonneg
   0 ≤ alternating_partial_sum a n - alternating_partial_sum a m :=
 begin
   unfold alternating_partial_sum,
-  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
+  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, even.neg_one_pow_add_left hm],
   apply alternating_partial_sum_nonneg _ (antitone.nat_suffix _ ha_anti),
   exact λ x, ha_nonneg (m + x),
 end
@@ -129,7 +129,7 @@ lemma alternating_partial_sum_diff_le_first
   alternating_partial_sum a n - alternating_partial_sum a m ≤ a m :=
 begin
   unfold alternating_partial_sum,
-  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, hm.neg_one_pow_add_left],
+  simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, even.neg_one_pow_add_left hm],
   apply alternating_partial_sum_le_first _ (antitone.nat_suffix a ha_anti),
   exact λ N, ha_nonneg (m + N),
 end
