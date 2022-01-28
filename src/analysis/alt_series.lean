@@ -82,15 +82,16 @@ lemma antitone.nat_suffix {m : ℕ}
   antitone (λ (n : ℕ), a (m + n)) :=
 λ x y hx, ha_anti (add_le_add_left hx m)
 
-lemma alternating_partial_sum_diff_nonneg
+lemma alternating_partial_sum_even_mono
   {m n : ℕ}
   (ha_anti : antitone a)
   (ha_nonneg : ∀ n, 0 ≤ a n)
   (hmn : m ≤ n)
   (hm : even m) :
-  0 ≤ alternating_partial_sum a n - alternating_partial_sum a m :=
+  alternating_partial_sum a m ≤ alternating_partial_sum a n :=
 begin
   unfold alternating_partial_sum,
+  rw [← sub_nonneg],
   simp only [← sum_Ico_eq_sub _ hmn, sum_Ico_eq_sum_range, even.neg_one_pow_add_left hm],
   apply alternating_partial_sum_nonneg _ (antitone.nat_suffix _ ha_anti),
   exact λ x, ha_nonneg (m + x),
@@ -151,7 +152,8 @@ begin
   have : ∀ (m : ℕ) (hatz : ∀ (n : ℕ), n ≥ m → a n < ε) (hme : even m),
     ∀ (n : ℕ), n ≥ m → |alternating_partial_sum a n - alternating_partial_sum a m| < ε,
   { intros m hatz hme n hmn,
-    rw abs_of_nonneg (alternating_partial_sum_diff_nonneg a ha_anti ha_nonneg hmn hme),
+    have hps_mono := alternating_partial_sum_even_mono a ha_anti ha_nonneg hmn hme,
+    rw abs_of_nonneg (sub_nonneg.mpr hps_mono),
     refine lt_of_le_of_lt _ (hatz m rfl.ge),
     exact alternating_partial_sum_diff_le_first a ha_anti ha_nonneg hmn hme },
 
