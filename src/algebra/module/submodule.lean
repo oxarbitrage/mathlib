@@ -156,7 +156,7 @@ sum_mem (λ i hi, smul_mem _ _ (hyp i hi))
   (g : G) : g • x ∈ p ↔ x ∈ p :=
 p.to_sub_mul_action.smul_mem_iff' g
 
-instance : has_add p := ⟨λx y, ⟨x.1 + y.1, add_mem _ x.2 y.2⟩⟩
+instance : has_add p := ⟨λx y, ⟨x.1 + y.1, add_mem x.2 y.2⟩⟩
 instance : has_zero p := ⟨⟨0, zero_mem _⟩⟩
 instance : inhabited p := ⟨0⟩
 instance [has_scalar S R] [has_scalar S M] [is_scalar_tower S R M] :
@@ -318,14 +318,10 @@ protected lemma add_mem_iff_left : y ∈ p → (x + y ∈ p ↔ x ∈ p) := add_
 protected lemma add_mem_iff_right : x ∈ p → (x + y ∈ p ↔ y ∈ p) := add_mem_cancel_left
 protected lemma coe_neg (x : p) : ((-x : p) : M) = -x := add_subgroup_class.coe_neg _
 protected lemma coe_sub (x y : p) : (↑(x - y) : M) = ↑x - ↑y := add_subgroup_class.coe_sub _ _
-instance : has_neg p := ⟨λx, ⟨-x.1, neg_mem _ x.2⟩⟩
-
-@[simp, norm_cast] lemma coe_neg (x : p) : ((-x : p) : M) = -x := rfl
+instance : has_neg p := ⟨λx, ⟨-x.1, neg_mem x.2⟩⟩
 
 instance : add_comm_group p :=
 { add := (+), zero := 0, neg := has_neg.neg, ..p.to_add_subgroup.to_add_comm_group }
-
-@[simp, norm_cast] lemma coe_sub (x y : p) : (↑(x - y) : M) = ↑x - ↑y := rfl
 
 end add_comm_group
 
