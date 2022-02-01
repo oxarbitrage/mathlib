@@ -84,7 +84,7 @@ exists.elim (zorn.zorn_nonempty_partial_order₀ {Q : subgroup G | is_p_group p 
       (λ T, ⟨S, ⟨S, rfl⟩, S.1.mul_mem (T hg) hh⟩) (λ T, ⟨R, ⟨R, rfl⟩, R.1.mul_mem hg (T hh)⟩) },
   λ ⟨g, _, ⟨S, rfl⟩, hg⟩, by
   { refine exists_imp_exists (λ k hk, _) (hc1 S.2 ⟨g, hg⟩),
-    rwa [subtype.ext_iff, coe_pow] at hk ⊢ },
+    rwa [subtype.ext_iff, submonoid_class.coe_pow] at hk ⊢ },
   λ M hM g hg, ⟨M, ⟨⟨M, hM⟩, rfl⟩, hg⟩⟩) P hP) (λ Q ⟨hQ1, hQ2, hQ3⟩, ⟨⟨Q, hQ1, hQ3⟩, hQ2⟩)
 
 instance sylow.nonempty : nonempty (sylow p G) :=
